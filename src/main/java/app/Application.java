@@ -1,40 +1,35 @@
 package app;
 
-import controller.AuthDialogController;
-import controller.KeyMasterDialogController;
 import controller.MainPanelController;
 import model.file.FileFactory;
 import model.file.FileModel;
 import view.MainFrame;
-import view.dialog.AuthDialog;
-import view.dialog.KeyMasterDialog;
 import view.panel.MainPanel;
 
 import javax.swing.*;
 import java.io.IOException;
 
 public class Application {
+    private static final String WINDOW_TITLE = "Crypto Service";
+    private static final int WINDOW_WIDTH = 640;
+    private static final int WINDOW_HEIGHT = 370;
+
     private FileModel fileModel;
     private MainPanel mainPanel;
-
     private MainPanelController mainPanelController;
 
     public Application() {
-        initModel();
-        initPanel();
-        initController();
+        initializeApplication();
     }
 
     public void run() {
-        initKeyStore();
-        initWindow();
+        showMainWindow();
     }
 
-    private void initKeyStore() {
-
-        AuthDialog authDialog = new AuthDialog(null);
-        AuthDialogController authDialogController = new AuthDialogController(authDialog,fileModel);
-        authDialog.showDialog();
+    private void initializeApplication() {
+        initModel();
+        initPanel();
+        initController();
     }
 
     private void initController() {
@@ -45,26 +40,33 @@ public class Application {
         mainPanel = new MainPanel();
     }
 
-    //region Window Init
-    private void initWindow() {
+    private void showMainWindow() {
         MainFrame frame = MainFrame.getInstance();
-        frame.setWindowName("Crypto Service");
-        frame.setWindowSize(840,340);
-        frame.setPanel(mainPanel.getPanel());
+        configureMainFrame(frame);
         frame.showWindow();
         frame.build();
     }
-    //endregion
+
+    private void configureMainFrame(MainFrame frame) {
+        frame.setWindowName(WINDOW_TITLE);
+        frame.setWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        frame.setPanel(mainPanel.getPanel());
+    }
 
     private void initModel() {
-
-        //TODO-пересмотреть создание исключения
         try {
             fileModel = FileFactory.create();
         } catch (IOException e) {
-            JOptionPane.showInputDialog(MainFrame.getInstance(),
-                    "Не удалось создать директорию");
+            handleFileModelInitializationError();
         }
     }
 
+    private void handleFileModelInitializationError() {
+        JOptionPane.showMessageDialog(
+                null,
+                "Не удалось создать директорию для работы приложения",
+                "Ошибка инициализации",
+                JOptionPane.ERROR_MESSAGE
+        );
+    }
 }

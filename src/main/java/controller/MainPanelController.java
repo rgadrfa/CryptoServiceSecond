@@ -1,107 +1,181 @@
 package controller;
 
-
 import model.crypto.CryptoFactory;
-import model.crypto.CryptoModel;
+import model.crypto.CryptoService;
 import model.crypto.controllers.AsymmetricAlgorithm;
 import model.crypto.controllers.SymmetricAlgorithm;
 import model.crypto.interfaces.ICryptoAsymmetricAlgorithm;
 import model.crypto.interfaces.ICryptoSymmetricAlgorithm;
 import model.file.Data;
 import model.file.FileModel;
-import model.key.KeyModel;
-import model.key.interfaces.ICryptoAsymmetricKey;
-import model.key.interfaces.ICryptoSymmetricKey;
+import model.file.enums.BasePath;
+import model.file.enums.FileExtension;
+import model.file.interfaces.IFileController;
+import model.file.interfaces.IPemFileReader;
+import model.file.pem_decoder.PemFileReaderController;
+import model.file.util.RandomNamer;
 import view.MainFrame;
 import view.dialog.KeyMasterDialog;
 import view.dialog.PathDialog;
 import view.panel.MainPanel;
 
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
-import javax.security.auth.kerberos.EncryptionKey;
 import javax.swing.*;
-import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.security.PrivateKey;
 import java.security.PublicKey;
 
 public class MainPanelController {
     private final MainPanel view;
     private final FileModel fileModel;
-    private CryptoModel cryptoModel;
-    private KeyModel keyModel;
 
-    // Константы для типов шифрования
+    private IFileController fileController;
+    private IPemFileReader pemFileReader;
+
+    private CryptoService<?> cryptoService;
+
     private static final String SYMMETRIC_CRYPTO = "Симметричное";
-    private static final String ASYMMETRIC_CRYPTO = "Асимметричное";
-
-    private String PATH;
 
     public MainPanelController(MainPanel view, FileModel fileModel){
         this.view = view;
         this.fileModel = fileModel;
 
+        fileController = fileModel.getFileController();
+        pemFileReader = fileModel.getPemFileReader();
+
         initController();
+        updateAlgorithms();
     }
 
     private void initController() {
         view.getFileSelectButton().addActionListener(_ -> openFileSelect());
+        view.getKeySelectButton().addActionListener(_ ->
+                openFileSelect(FileExtension.EXTENSION_KEY_FILE.getName())
+        );
         view.getCryptoTypeCombo().addActionListener(_ -> updateAlgorithms());
+
         view.getKeyMasterButton().addActionListener(_ -> openKeyMaster());
-        
+
         view.getEncryptButton().addActionListener(_ -> encrypt());
+        view.getDecryptButton().addActionListener(_ -> decrypt());
     }
 
-    private void setupCryptoModel() {
+    private void setupCryptoService() {
         String cryptoType = getSelectedCryptoType();
         try {
             if (cryptoType.equals(SYMMETRIC_CRYPTO)) {
-                cryptoModel = CryptoFactory.create(new SymmetricAlgorithm(getTransform()));
+                cryptoService = CryptoFactory.create(new SymmetricAlgorithm(buildSymmetricTransform()));
             } else {
-                cryptoModel = CryptoFactory.create(new AsymmetricAlgorithm(getTransform()));
+                cryptoService = CryptoFactory.create(new AsymmetricAlgorithm(buildAsymmetricTransform()));
             }
         } catch (Exception e) {
-            MainFrame.showInf("Ошибка: " + e.getMessage());
+            MainFrame.showError("Ошибка создания алгоритма: " + e.getMessage());
         }
     }
 
+    //region encode
     private void encrypt() {
-
-
         if (view.isPathFiledEmpty()) {
-            MainFrame.showInf("Не указан путь к файлу");
+            MainFrame.showError("Не указан путь к файлу");
+            return;
+        }
+        if (view.isKeyPathEmpty()) {
+            MainFrame.showError("Не указан путь к ключу");
             return;
         }
 
         try {
-            setupCryptoModel();
+            setupCryptoService();
 
-            Data fileData = fileModel.getFileController().read(view.getFilePathField().getText());
+            Data fileData = fileController.read(view.getFilePathField().getText());
             String cryptoType = getSelectedCryptoType();
 
+            Data result;
             if (cryptoType.equals(SYMMETRIC_CRYPTO)) {
-                ICryptoSymmetricAlgorithm cryptoAlgorithm = (ICryptoSymmetricAlgorithm) cryptoModel.getAlgorithm();
-
-                cryptoAlgorithm.encrypt(fileData,null);
+                SecretKey key = loadSymmetricKey();
+                ICryptoSymmetricAlgorithm algo = (ICryptoSymmetricAlgorithm) cryptoService.getAlgorithm();
+                result = algo.encrypt(fileData, key);
             } else {
-                ICryptoAsymmetricAlgorithm cryptoAlgorithm = (ICryptoAsymmetricAlgorithm) cryptoModel.getAlgorithm();
-                cryptoAlgorithm.encrypt(fileData,null);
+                PublicKey key = loadPublicKey();
+                ICryptoAsymmetricAlgorithm algo = (ICryptoAsymmetricAlgorithm) cryptoService.getAlgorithm();
+                result = algo.encrypt(fileData, key);
             }
 
-            MainFrame.showInf("Шифрование выполнено успешно");
+            //TODO - пересмотреть формирование расширений у файлов
+            fileController.write(
+                    result,
+                    BasePath.CRYPTO_FILE_DIR,
+                    RandomNamer.generateRandomText(8),
+                    FileExtension.EXTENSION_ENCRYPTED_FILE.getExtension()
+            );
 
-        } catch (IOException e) {
-            MainFrame.showInf("Ошибка чтения данных " + e.getMessage());
-        } catch (IllegalBlockSizeException e) {
-            MainFrame.showInf("Неверный размер блока ключа " + e.getMessage());
-        } catch (BadPaddingException e) {
-            MainFrame.showInf("Ошибка:  " + e.getMessage());
-        } catch (InvalidKeyException e) {
-            MainFrame.showInf("Неверный ключ " + e.getMessage());
+            MainFrame.showInformation("Шифрование выполнено успешно");
+
+        } catch (Exception e) {
+            MainFrame.showError("Ошибка шифрования: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
+    private void decrypt() {
+        if (view.isPathFiledEmpty()) {
+            MainFrame.showError("Не указан путь к файлу");
+            return;
+        }
+        if (view.isKeyPathEmpty()) {
+            MainFrame.showError("Не указан путь к ключу");
+            return;
+        }
+
+        try {
+            setupCryptoService();
+
+            Data fileData = fileController.read(view.getFilePathField().getText());
+            String cryptoType = getSelectedCryptoType();
+
+            Data result;
+            if (cryptoType.equals(SYMMETRIC_CRYPTO)) {
+                SecretKey key = loadSymmetricKey();
+                ICryptoSymmetricAlgorithm algo = (ICryptoSymmetricAlgorithm) cryptoService.getAlgorithm();
+                result = algo.decrypt(fileData, key);
+            } else {
+                PrivateKey key = loadPrivateKey();
+                ICryptoAsymmetricAlgorithm algo = (ICryptoAsymmetricAlgorithm) cryptoService.getAlgorithm();
+                result = algo.decrypt(fileData, key);
+            }
+
+            //TODO - пересмотреть формирование расширений у файлов
+            fileController.write(
+                    result,
+                    BasePath.CRYPTO_FILE_DIR,
+                    RandomNamer.generateRandomText(8),
+                    ""
+            );
+
+            MainFrame.showError("Расшифровка выполнена успешно");
+
+        } catch (Exception e) {
+            MainFrame.showError("Ошибка расшифровки: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    //endregion
+
+    private SecretKey loadSymmetricKey() throws Exception {
+        Data keyData = fileController.read(view.getKeyPathField().getText());
+        return pemFileReader.fromPemSecret(keyData.getData());
+    }
+
+    private PublicKey loadPublicKey() throws Exception {
+        Data keyData = fileController.read(view.getKeyPathField().getText());
+        return pemFileReader.fromPemPublic(keyData.getData());
+    }
+
+    private PrivateKey loadPrivateKey() throws Exception {
+        Data keyData = fileController.read(view.getKeyPathField().getText());
+        return pemFileReader.fromPemPrivate(keyData.getData());
+    }
+
+    //region Transform
     private String getTransform() {
         return SYMMETRIC_CRYPTO.equals(getSelectedCryptoType())
                 ? buildSymmetricTransform()
@@ -125,6 +199,7 @@ public class MainPanelController {
         };
         return String.join("/", transformComponents);
     }
+    //endregion
 
     //region SelectAlgorithm
     private void updateAlgorithms() {
@@ -135,8 +210,8 @@ public class MainPanelController {
 
     private void updateAlgorithmComboBox(String cryptoType) {
         String[] algorithms = SYMMETRIC_CRYPTO.equals(cryptoType)
-                ? view.SYMMETRIC_ALGORITHMS
-                : view.ASYMMETRIC_ALGORITHMS;
+                ? view.getSYMMETRIC_ALGORITHMS()
+                : view.getASYMMETRIC_ALGORITHMS();
 
         view.getAlgorithmCombo().setModel(new DefaultComboBoxModel<>(algorithms));
     }
@@ -156,14 +231,24 @@ public class MainPanelController {
     //region Open Dialog
     private void openFileSelect() {
         PathDialog pathDialog = new PathDialog();
+
         String path = pathDialog.openFileDialog();
+
         view.getFilePathField().setText(path);
-        PATH = path;
+    }
+
+    private void openFileSelect(String flag) {
+        PathDialog pathDialog = new PathDialog();
+
+        String path = pathDialog.openFileDialog(flag);
+
+        view.getKeyPathField().setText(path);
     }
 
     private void openKeyMaster() {
-        KeyMasterDialog keyMasterDialog = new KeyMasterDialog(MainFrame.getInstance().mainFrame);
+        var g = new KeyMasterDialog(null);
+        var t = new KeyMasterDialogController(g,fileModel);
+        g.show();
     }
     //endregion
 }
-

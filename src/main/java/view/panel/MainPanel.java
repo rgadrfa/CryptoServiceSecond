@@ -15,32 +15,31 @@ public class MainPanel implements IPanel {
     private JComboBox<String> modeCombo;
     private JComboBox<String> paddingCombo;
     private JTextField filePathField;
+    private JTextField keyPathField;
     private JButton fileSelectButton;
+    private JButton keySelectButton;
     private JButton keyMasterButton;
     private JButton encryptButton;
     private JButton decryptButton;
-    private JLabel keyStatusLabel;
 
-    private static final String LABEL_CRYPTO_TYPE = "Тип шифрования:";
-    private static final String LABEL_ALGORITHM = "Алгоритм:";
-    private static final String LABEL_MODE = "Режим работы:";
-    private static final String LABEL_PADDING = "Padding:";
-    private static final String LABEL_FILE = "Файл:";
-    private static final String LABEL_KEY_STATUS = "Статус ключа:";
+    private final String LABEL_CRYPTO_TYPE = "Тип шифрования:";
+    private final String LABEL_ALGORITHM = "Алгоритм:";
+    private final String LABEL_MODE = "Режим работы:";
+    private final String LABEL_PADDING = "Padding:";
+    private final String LABEL_FILE = "Файл:";
+    private final String LABEL_KEY_FILE = "Файл ключа:";
 
-    private static final String BUTTON_SELECT_FILE = "Выбрать";
-    private static final String BUTTON_KEY_MASTER = "Мастер ключей";
-    private static final String BUTTON_ENCRYPT = "Зашифровать";
-    private static final String BUTTON_DECRYPT = "Расшифровать";
+    private final String BUTTON_SELECT_FILE = "Выбрать";
+    private final String BUTTON_SELECT_KEY = "Выбрать ключ";
+    private final String BUTTON_KEY_MASTER = "Мастер ключей";
+    private final String BUTTON_ENCRYPT = "Зашифровать";
+    private final String BUTTON_DECRYPT = "Расшифровать";
 
-    private static final String KEY_STATUS_NOT_SELECTED = "Ключ не выбран";
-    private static final String KEY_STATUS_SELECTED = "Ключ выбран";
-
-    private static final String[] CRYPTO_TYPES = {"Симметричное", "Асимметричное"};
-    public static final String[] SYMMETRIC_ALGORITHMS = {"AES", "Blowfish"};
-    public static final String[] ASYMMETRIC_ALGORITHMS = {"RSA"};
-    private static final String[] MODES = {"ECB", "CBC", "CFB", "OFB", "CTR"};
-    private static final String[] PADDINGS = {"PKCS5Padding", "PKCS7Padding", "NoPadding"};
+    private final String[] CRYPTO_TYPES = {"Симметричное", "Асимметричное"};
+    private final String[] SYMMETRIC_ALGORITHMS = {"AES", "Blowfish"};
+    private final String[] ASYMMETRIC_ALGORITHMS = {"RSA"};
+    private final String[] MODES = {"ECB", "CBC", "CFB", "OFB", "CTR"};
+    private final String[] PADDINGS = {"PKCS5Padding", "PKCS7Padding", "NoPadding"};
 
     public MainPanel() {
         mainPanel = new JPanel();
@@ -68,7 +67,7 @@ public class MainPanel implements IPanel {
         addComboBoxRow(panel, gbc, LABEL_MODE, modeCombo = new JComboBox<>(MODES), 2);
         addComboBoxRow(panel, gbc, LABEL_PADDING, paddingCombo = new JComboBox<>(PADDINGS), 3);
         addFileSelectionRow(panel, gbc, 4);
-        addKeyStatusRow(panel, gbc, 5);
+        addKeyFileSelectionRow(panel, gbc, 5);
 
         return panel;
     }
@@ -96,13 +95,19 @@ public class MainPanel implements IPanel {
         panel.add(filePanel, gbc);
     }
 
-    private void addKeyStatusRow(JPanel panel, GridBagConstraints gbc, int row) {
+    private void addKeyFileSelectionRow(JPanel panel, GridBagConstraints gbc, int row) {
         gbc.gridx = 0; gbc.gridy = row;
-        panel.add(new JLabel(LABEL_KEY_STATUS), gbc);
+        panel.add(new JLabel(LABEL_KEY_FILE), gbc);
 
         gbc.gridx = 1;
-        keyStatusLabel = new JLabel(KEY_STATUS_NOT_SELECTED);
-        panel.add(keyStatusLabel, gbc);
+        JPanel keyPanel = new JPanel(new BorderLayout(5, 0));
+        keyPathField = new JTextField();
+        keyPathField.setEditable(false);
+        keySelectButton = new JButton(BUTTON_SELECT_KEY);
+
+        keyPanel.add(keyPathField, BorderLayout.CENTER);
+        keyPanel.add(keySelectButton, BorderLayout.EAST);
+        panel.add(keyPanel, gbc);
     }
 
     private JPanel createButtonPanel() {
@@ -119,32 +124,34 @@ public class MainPanel implements IPanel {
         return panel;
     }
 
-    public void setKeyNotSelected() {
-        keyStatusLabel.setText(KEY_STATUS_NOT_SELECTED);
-    }
-
-    public void setKeySelected() {
-        keyStatusLabel.setText(KEY_STATUS_SELECTED);
-    }
-
-    public boolean isKeySelected() {
-        return keyStatusLabel.getText().equals(KEY_STATUS_SELECTED);
-    }
-
     public boolean isPathFiledEmpty() {
         return filePathField.getText().trim().isEmpty();
     }
 
+    public boolean isKeyPathEmpty() {
+        return keyPathField.getText().trim().isEmpty();
+    }
+
+    // Геттеры
     public JComboBox<String> getAlgorithmCombo() { return algorithmCombo; }
     public JComboBox<String> getModeCombo() { return modeCombo; }
     public JComboBox<String> getPaddingCombo() { return paddingCombo; }
     public JComboBox<String> getCryptoTypeCombo() { return cryptoTypeCombo; }
     public JButton getFileSelectButton() { return fileSelectButton; }
+    public JButton getKeySelectButton() { return keySelectButton; }
     public JButton getEncryptButton() { return encryptButton; }
     public JButton getDecryptButton() { return decryptButton; }
     public JButton getKeyMasterButton() { return keyMasterButton; }
     public JTextField getFilePathField() { return filePathField; }
-    public JLabel getKeyStatusLabel() { return keyStatusLabel; }
+    public JTextField getKeyPathField() { return keyPathField; }
+
+    public String[] getASYMMETRIC_ALGORITHMS() {
+        return ASYMMETRIC_ALGORITHMS;
+    }
+
+    public String[] getSYMMETRIC_ALGORITHMS() {
+        return SYMMETRIC_ALGORITHMS;
+    }
 
     @Override
     public JPanel getPanel() {

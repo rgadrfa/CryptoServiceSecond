@@ -16,7 +16,7 @@ public class FileController implements IFileController {
     public FileController() { }
 
     @Override
-    public void write(Data data, BasePath basePath, String name, FileExtension extension) throws IOException {
+    public void write(Data data, BasePath basePath, String name, String extension) throws IOException {
         Path path = buildPath(name, basePath, extension);
         Files.write(path, data.getData());
     }
@@ -52,10 +52,10 @@ public class FileController implements IFileController {
                 .toArray(String[]::new);
     }
 
-    private Path buildPath(String name,BasePath basePath, FileExtension extension) {
+    private Path buildPath(String name,BasePath basePath, String extension) {
         return basePath
                 .getPath()
-                .resolve(name + extension.getExtension());
+                .resolve(name + extension);
     }
 
     private Path buildPath(String name, BasePath basePath) {

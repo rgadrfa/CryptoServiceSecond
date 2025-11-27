@@ -8,6 +8,10 @@ import java.awt.*;
 public class MainFrame implements IParentPanel {
     public final JFrame mainFrame;
     private final JPanel mainPanel;
+
+    private static final String ERROR_TITLE = "Ошибка";
+    private static final String INFORMATION_TITLE = "Информация";
+
     private static MainFrame instance;
 
     private MainFrame() {
@@ -41,11 +45,19 @@ public class MainFrame implements IParentPanel {
         mainFrame.setTitle(windowName);
     }
 
-    public static void showInf(String message){
+    public static void showError(String message){
         JOptionPane.showMessageDialog(MainFrame.getInstance().mainFrame,
                 message,
-                "Ошибка",
+                ERROR_TITLE,
                 JOptionPane.ERROR_MESSAGE
+        );
+    }
+
+    public static void showInformation(String message){
+        JOptionPane.showMessageDialog(MainFrame.getInstance().mainFrame,
+                message,
+                INFORMATION_TITLE,
+                JOptionPane.INFORMATION_MESSAGE
         );
     }
 

@@ -1,7 +1,7 @@
 package model.file.enums;
 
 public enum FileExtension {
-    EXTENSION_KEY_FILE(".p12"),
+    EXTENSION_KEY_FILE(".pem"),
     EXTENSION_ENCRYPTED_FILE(".encrypted");
 
     private final String extension;
@@ -11,5 +11,9 @@ public enum FileExtension {
 
     public String getExtension(){
         return extension;
+    }
+
+    public String getName(){
+        return extension.substring(1);
     }
 }
