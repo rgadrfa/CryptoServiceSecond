@@ -148,10 +148,10 @@ public class MainPanelController {
                     result,
                     BasePath.CRYPTO_FILE_DIR,
                     RandomNamer.generateRandomText(8),
-                    ".txt"
+                    ""
             );
 
-            MainFrame.showError("Расшифровка выполнена успешно");
+            MainFrame.showInformation("Расшифровка выполнена успешно");
 
         } catch (Exception e) {
             MainFrame.showError("Ошибка расшифровки: " + e.getMessage());

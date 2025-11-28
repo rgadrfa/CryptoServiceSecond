@@ -11,7 +11,7 @@ import java.io.IOException;
 
 public class Application {
     private final String WINDOW_TITLE = "Crypto Service";
-    private final int WINDOW_WIDTH = 640;
+    private final int WINDOW_WIDTH = 540;
     private final int WINDOW_HEIGHT = 370;
 
     private FileModel fileModel;
