@@ -148,7 +148,7 @@ public class MainPanelController {
                     result,
                     BasePath.CRYPTO_FILE_DIR,
                     RandomNamer.generateRandomText(8),
-                    ""
+                    ".txt"
             );
 
             MainFrame.showError("Расшифровка выполнена успешно");
@@ -240,15 +240,15 @@ public class MainPanelController {
     private void openFileSelect(String flag) {
         PathDialog pathDialog = new PathDialog();
 
-        String path = pathDialog.openFileDialog(flag);
+        String path = pathDialog.openFileDialog(flag,BasePath.KEYS_FILE_DIR.getPath().toString());
 
         view.getKeyPathField().setText(path);
     }
 
     private void openKeyMaster() {
-        var g = new KeyMasterDialog(null);
-        var t = new KeyMasterDialogController(g,fileModel);
-        g.show();
+        KeyMasterDialog keyMasterDialog = new KeyMasterDialog(null);
+        KeyMasterDialogController keyMasterDialogController = new KeyMasterDialogController(keyMasterDialog,fileModel);
+        keyMasterDialog.show();
     }
     //endregion
 }

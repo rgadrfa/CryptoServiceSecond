@@ -10,9 +10,9 @@ import javax.swing.*;
 import java.io.IOException;
 
 public class Application {
-    private static final String WINDOW_TITLE = "Crypto Service";
-    private static final int WINDOW_WIDTH = 640;
-    private static final int WINDOW_HEIGHT = 370;
+    private final String WINDOW_TITLE = "Crypto Service";
+    private final int WINDOW_WIDTH = 640;
+    private final int WINDOW_HEIGHT = 370;
 
     private FileModel fileModel;
     private MainPanel mainPanel;
