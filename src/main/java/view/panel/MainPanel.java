@@ -145,6 +145,10 @@ public class MainPanel implements IPanel {
     public JTextField getFilePathField() { return filePathField; }
     public JTextField getKeyPathField() { return keyPathField; }
 
+    public String[] getCRYPTO_TYPES() {
+        return CRYPTO_TYPES;
+    }
+
     public String[] getASYMMETRIC_ALGORITHMS() {
         return ASYMMETRIC_ALGORITHMS;
     }

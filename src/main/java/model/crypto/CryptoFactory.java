@@ -1,14 +1,14 @@
 package model.crypto;
 
-import model.crypto.interfaces.ICryptoAsymmetricAlgorithm;
-import model.crypto.interfaces.ICryptoSymmetricAlgorithm;
+import model.crypto.interfaces.IAsymmetricAlgorithm;
+import model.crypto.interfaces.ISymmetricAlgorithm;
 
 public class CryptoFactory {
-    public static CryptoService<ICryptoSymmetricAlgorithm> create(ICryptoSymmetricAlgorithm algorithm){
+    public static CryptoService<ISymmetricAlgorithm> create(ISymmetricAlgorithm algorithm){
         return new CryptoService<>(algorithm);
     }
 
-    public static CryptoService<ICryptoAsymmetricAlgorithm> create(ICryptoAsymmetricAlgorithm algorithm){
+    public static CryptoService<IAsymmetricAlgorithm> create(IAsymmetricAlgorithm algorithm){
         return new CryptoService<>(algorithm);
     }
 }

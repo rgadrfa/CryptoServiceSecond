@@ -1,14 +1,14 @@
 package model.key;
 
-import model.key.interfaces.ICryptoAsymmetricKey;
-import model.key.interfaces.ICryptoSymmetricKey;
+import model.key.interfaces.IAsymmetricKey;
+import model.key.interfaces.ISymmetricKey;
 
 public class KeyFactory {
-    public static KeyService<ICryptoSymmetricKey> create(ICryptoSymmetricKey key){
-        return new KeyService<>(key);
+    public static KeyService create(ISymmetricKey key){
+        return new KeyService(key);
     }
 
-    public static KeyService<ICryptoAsymmetricKey> create(ICryptoAsymmetricKey key){
-        return new KeyService<>(key);
+    public static KeyService create(IAsymmetricKey key){
+        return new KeyService(key);
     }
 }

@@ -1,13 +1,12 @@
 package model.key.controllers;
 
-import model.key.interfaces.ICryptoAsymmetricKey;
+import model.key.interfaces.IAsymmetricKey;
 
-import javax.crypto.KeyGenerator;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 
-public class AsymmetricKeyController implements ICryptoAsymmetricKey {
+public class AsymmetricKeyController implements IAsymmetricKey {
     private final KeyPairGenerator keyGenerator;
 
     public AsymmetricKeyController(String transform,int keySize) throws NoSuchAlgorithmException {
@@ -15,7 +14,7 @@ public class AsymmetricKeyController implements ICryptoAsymmetricKey {
         this.keyGenerator.initialize(keySize);
     }
     @Override
-    public KeyPair create() {
+    public KeyPair createPair() {
         return keyGenerator.generateKeyPair();
     }
 }

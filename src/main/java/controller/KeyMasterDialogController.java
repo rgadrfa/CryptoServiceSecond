@@ -5,13 +5,11 @@ import model.file.FileModel;
 import model.file.enums.BasePath;
 import model.file.enums.FileExtension;
 import model.file.interfaces.IFileController;
-import model.file.interfaces.IPemFileReader;
+import model.file.interfaces.IPemFile;
 import model.key.KeyFactory;
-import model.key.KeyService;
 import model.key.controllers.AsymmetricKeyController;
 import model.key.controllers.SymmetricKeyController;
-import model.key.interfaces.ICryptoAsymmetricKey;
-import model.key.interfaces.ICryptoSymmetricKey;
+import model.key.interfaces.IKeyService;
 import view.MainFrame;
 import view.dialog.KeyMasterDialog;
 
@@ -24,9 +22,9 @@ public class KeyMasterDialogController {
     private final FileModel fileModel;
 
     private IFileController fileController;
-    private IPemFileReader pemFileReader;
+    private IPemFile pemFileReader;
 
-    private KeyService<?> keyService;
+    private IKeyService keyService;
     private final String SYMMETRIC_CRYPTO = "Симметричный";
 
     public KeyMasterDialogController(KeyMasterDialog keyMasterDialog, FileModel fileModel) {
@@ -78,7 +76,7 @@ public class KeyMasterDialogController {
         SymmetricKeyController controller = new SymmetricKeyController(algorithm, keySize);
         keyService = KeyFactory.create(controller);
 
-        SecretKey secretKey = ((ICryptoSymmetricKey) keyService.getCryptoController()).create();
+        SecretKey secretKey = keyService.createSecret();
 
         String fileName = baseName + "_" + algorithm.toLowerCase() + "_" + keySize;
 
@@ -93,7 +91,7 @@ public class KeyMasterDialogController {
     private void generateAsymmetricKeyPair(String algorithm, int keySize, String baseName) throws Exception {
         AsymmetricKeyController controller = new AsymmetricKeyController(algorithm, keySize);
         keyService = KeyFactory.create(controller);
-        KeyPair keyPair = ((ICryptoAsymmetricKey) keyService.getCryptoController()).create();
+        KeyPair keyPair = keyService.createPair();
 
         String publicKeyName = baseName + "_" + algorithm.toLowerCase() + "_public_" + keySize;
         String privateKeyName = baseName + "_" + algorithm.toLowerCase() + "_private_" + keySize;

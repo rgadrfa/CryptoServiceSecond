@@ -1,12 +1,12 @@
 package model.key.controllers;
 
-import model.key.interfaces.ICryptoSymmetricKey;
+import model.key.interfaces.ISymmetricKey;
 
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import java.security.NoSuchAlgorithmException;
 
-public class SymmetricKeyController implements ICryptoSymmetricKey {
+public class SymmetricKeyController implements ISymmetricKey {
     private final KeyGenerator keyGenerator;
 
     public SymmetricKeyController(String transform,int keySize) throws NoSuchAlgorithmException {
@@ -15,7 +15,7 @@ public class SymmetricKeyController implements ICryptoSymmetricKey {
     }
 
     @Override
-    public SecretKey create() {
+    public SecretKey createSecret() {
         return keyGenerator.generateKey();
     }
 }

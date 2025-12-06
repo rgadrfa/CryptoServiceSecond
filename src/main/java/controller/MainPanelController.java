@@ -4,15 +4,14 @@ import model.crypto.CryptoFactory;
 import model.crypto.CryptoService;
 import model.crypto.controllers.AsymmetricAlgorithm;
 import model.crypto.controllers.SymmetricAlgorithm;
-import model.crypto.interfaces.ICryptoAsymmetricAlgorithm;
-import model.crypto.interfaces.ICryptoSymmetricAlgorithm;
+import model.crypto.interfaces.IAsymmetricAlgorithm;
+import model.crypto.interfaces.ISymmetricAlgorithm;
 import model.file.Data;
 import model.file.FileModel;
 import model.file.enums.BasePath;
 import model.file.enums.FileExtension;
 import model.file.interfaces.IFileController;
-import model.file.interfaces.IPemFileReader;
-import model.file.pem_decoder.PemFileReaderController;
+import model.file.interfaces.IPemFile;
 import model.file.util.RandomNamer;
 import view.MainFrame;
 import view.dialog.KeyMasterDialog;
@@ -29,7 +28,7 @@ public class MainPanelController {
     private final FileModel fileModel;
 
     private IFileController fileController;
-    private IPemFileReader pemFileReader;
+    private IPemFile pemFileReader;
 
     private CryptoService<?> cryptoService;
 
@@ -62,7 +61,7 @@ public class MainPanelController {
     private void setupCryptoService() {
         String cryptoType = getSelectedCryptoType();
         try {
-            if (cryptoType.equals(SYMMETRIC_CRYPTO)) {
+            if (cryptoType.equals(view.getCRYPTO_TYPES()[0])) {
                 cryptoService = CryptoFactory.create(new SymmetricAlgorithm(buildSymmetricTransform()));
             } else {
                 cryptoService = CryptoFactory.create(new AsymmetricAlgorithm(buildAsymmetricTransform()));
@@ -92,11 +91,11 @@ public class MainPanelController {
             Data result;
             if (cryptoType.equals(SYMMETRIC_CRYPTO)) {
                 SecretKey key = loadSymmetricKey();
-                ICryptoSymmetricAlgorithm algo = (ICryptoSymmetricAlgorithm) cryptoService.getAlgorithm();
+                ISymmetricAlgorithm algo = (ISymmetricAlgorithm) cryptoService.getAlgorithm();
                 result = algo.encrypt(fileData, key);
             } else {
                 PublicKey key = loadPublicKey();
-                ICryptoAsymmetricAlgorithm algo = (ICryptoAsymmetricAlgorithm) cryptoService.getAlgorithm();
+                IAsymmetricAlgorithm algo = (IAsymmetricAlgorithm) cryptoService.getAlgorithm();
                 result = algo.encrypt(fileData, key);
             }
 
@@ -135,11 +134,11 @@ public class MainPanelController {
             Data result;
             if (cryptoType.equals(SYMMETRIC_CRYPTO)) {
                 SecretKey key = loadSymmetricKey();
-                ICryptoSymmetricAlgorithm algo = (ICryptoSymmetricAlgorithm) cryptoService.getAlgorithm();
+                ISymmetricAlgorithm algo = (ISymmetricAlgorithm) cryptoService.getAlgorithm();
                 result = algo.decrypt(fileData, key);
             } else {
                 PrivateKey key = loadPrivateKey();
-                ICryptoAsymmetricAlgorithm algo = (ICryptoAsymmetricAlgorithm) cryptoService.getAlgorithm();
+                IAsymmetricAlgorithm algo = (IAsymmetricAlgorithm) cryptoService.getAlgorithm();
                 result = algo.decrypt(fileData, key);
             }
 
@@ -155,7 +154,6 @@ public class MainPanelController {
 
         } catch (Exception e) {
             MainFrame.showError("Ошибка расшифровки: " + e.getMessage());
-            e.printStackTrace();
         }
     }
     //endregion

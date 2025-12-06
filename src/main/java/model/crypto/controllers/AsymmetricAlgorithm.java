@@ -1,6 +1,6 @@
 package model.crypto.controllers;
 
-import model.crypto.interfaces.ICryptoAsymmetricAlgorithm;
+import model.crypto.interfaces.IAsymmetricAlgorithm;
 import model.file.Data;
 
 import javax.crypto.BadPaddingException;
@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-public class AsymmetricAlgorithm extends CryptoAlgorithm implements ICryptoAsymmetricAlgorithm {
+public class AsymmetricAlgorithm extends CryptoAlgorithm implements IAsymmetricAlgorithm {
 
     public AsymmetricAlgorithm(String transformation)
             throws NoSuchPaddingException,

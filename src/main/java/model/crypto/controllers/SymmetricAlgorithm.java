@@ -1,13 +1,13 @@
 package model.crypto.controllers;
 
-import model.crypto.interfaces.ICryptoSymmetricAlgorithm;
+import model.crypto.interfaces.ISymmetricAlgorithm;
 import model.file.Data;
 
 import javax.crypto.*;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public class SymmetricAlgorithm extends CryptoAlgorithm implements ICryptoSymmetricAlgorithm {
+public class SymmetricAlgorithm extends CryptoAlgorithm implements ISymmetricAlgorithm {
 
     public SymmetricAlgorithm(String transformation)
             throws NoSuchPaddingException,

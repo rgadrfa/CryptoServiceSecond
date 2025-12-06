@@ -7,7 +7,7 @@ import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.SecretKey;
 import java.security.InvalidKeyException;
 
-public interface ICryptoSymmetricAlgorithm extends ICryptoAlgorithm {
+public interface ISymmetricAlgorithm extends ICryptoAlgorithm {
     Data encrypt(Data data, SecretKey key) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException;
     Data decrypt(Data data, SecretKey key) throws IllegalBlockSizeException, BadPaddingException, InvalidKeyException;
 }

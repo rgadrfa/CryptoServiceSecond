@@ -1,6 +1,6 @@
 package model.file.pem_decoder;
 
-import model.file.interfaces.IPemFileReader;
+import model.file.interfaces.IPemFile;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -9,7 +9,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 
-public class PemFileReaderController implements IPemFileReader {
+public class PemFileController implements IPemFile {
 
     @Override
     public byte[] toPem(PublicKey key) {
